@@ -221,8 +221,13 @@ class ModelXRay(object):
 
             Returns
             -------
+
+            List of features oredered by 'importance'.
         '''
         ## Convert Pandas DataFrame to nparray explicitly to make life easier
+
+
+        #print('test5')
 
         columns = list(self.results.keys())
         result_data = [importance_distribution_of_variable(self.results[col_name][1]) for col_name in columns]
@@ -241,8 +246,12 @@ class ModelXRay(object):
         ax.boxplot(plot_data, notch=0, sym='+', vert=0, whis=1.5)
         ax.set_yticklabels([columns[idx] for idx in sortind][-num_features:]);
 
+        reversed_list_of_features_by_importance = list(reversed([columns[idx] for idx in sortind][-num_features:]))
 
-    def feature_dependence_plots(self, show_base_points=True, pts_selected='sample', num_pts=5, figsize=None):
+        return reversed_list_of_features_by_importance
+
+    def feature_dependence_plots(self, show_base_points=True, pts_selected='sample', num_pts=5, figsize=None,
+                                 features_selected=None):
         '''This function visualizes the effect of a single variable in models with complicated dependencies.
         Given a dataset, it will select points in that dataset, and then change the select column across
         different values to view the effect of the model prediction given that variable. These have been called
@@ -253,7 +262,11 @@ class ModelXRay(object):
 
         import matplotlib.pyplot as plt
 
-        columns = sorted(list(self.results.keys()))
+        if features_selected == None:
+            columns = sorted(list(self.results.keys()))
+        else:
+            columns = features_selected
+
         num_rows = len(self.results[columns[0]][1])  # Get number of sample rows
         if (type(pts_selected)==str and pts_selected=='sample'):
             row_indexes = np.random.choice(np.arange(num_rows), num_pts)
